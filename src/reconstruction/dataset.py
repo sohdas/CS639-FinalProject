@@ -13,7 +13,7 @@ Generates a basic face dataset with feature labels.
 '''
 class FaceDataset(Dataset):
     
-    def __init__(self):
+    def __init__(self, transforms=None):
         # Load the features.
         attribute_file = 'CelebAMask-HQ-attribute-anno.txt'
         datadir = '/home/declan/Data/Faces/'
@@ -25,11 +25,20 @@ class FaceDataset(Dataset):
         good_data = good_data.clip(lower=0) # Set -1 to 0.
         good_data = good_data[(good_data.T != 0).any()] # drop any rows with only zeros.
         img_names = good_data.index.values
-        self.images = [to_tensor(Image.open(os.path.join(datadir, 'CelebA-HQ-img', img))) for img in img_names]
+        self.images = [Image.open(os.path.join(datadir, 'CelebA-HQ-img', img)) for img in img_names]
         self.features = good_data.values
+        self.transform = transforms
         
     def __getitem__(self, index):
-        return self.images[index], self.features[index]
+        # Transform images by downsampling and then converting to tensor.
+        img = self.images[index]
+        features = self.features[index]
+        if self.transform is not None:
+            img = self.transform(img)
+        return img, features
         
     def __len__(self):
         return len(self.images)
+
+        
+        

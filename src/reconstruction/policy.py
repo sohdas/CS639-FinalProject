@@ -31,9 +31,9 @@ class Policy(nn.Module):
         # (3) Fuse: Fusing the outputs of (1) and (2) to give 256-D vector per image
         # May be appropriate to add activation function later or change to self._linear.
         self.fuse = nn.Sequential(self._linear(272, 256), # Bx256
-                                         nn.Linear(256, 256),    # Bx256
-                                         nn.BatchNorm1d(256)
-                                        )
+                                  nn.Linear(256, 256),    # Bx256
+                                  nn.BatchNorm1d(256)
+                                 )
 
         # (4) Aggregator: View aggregating LSTM
         self.aggregate = nn.LSTM(input_size=256, hidden_size=self.rnn_hidden_size, num_layers=1)
@@ -75,7 +75,7 @@ class Policy(nn.Module):
                 hidden[1] = hidden[1].cuda()
             
         # Fuse the proprioceptive representation and the view representation.
-        x = self.fuse(x) 
+        x = self.fuse(x)
 
         # Update the belief state about the image.
         # Note: input to aggregate lstm has to be (seq_length x batch_size x input_dims)
@@ -90,7 +90,6 @@ class Policy(nn.Module):
             
         # Decode the whole image using the decoder.
         decoded = self.decode(act_input)
-
         return probs, hidden, decoded
     
     def _linear(self, in_size, out_size):
