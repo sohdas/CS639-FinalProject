@@ -53,7 +53,9 @@ class Policy(nn.Module):
                                     self._deconv(32, 16),    # Bx16x64x64
                                     self._deconv(16, 16),    # Bx16x128x128
                                     self._deconv(16, 8),     # Bx8x256x256
-                                    self._deconv(8, 3)       # Bx3x512x512
+                                    self._deconv(8, 3),     # Bx8x256x256
+                                    #nn.ConvTranspose2d(8, 3, kernel_size=4, stride=2, padding=1), # Bx3x512x512
+                                    #nn.Sigmoid()
                                    )
  
             
