@@ -12,9 +12,9 @@ class Policy(nn.Module):
             
         # Network settings
         self.rnn_hidden_size = 256
-        self.iscuda = False
+        self.iscuda = True
         # The input size for location embedding / proprioception stack
-        self.input_size_loc = 2 # Relative camera position
+        self.input_size_loc = 256 # Relative camera position
         self.input_size_act = 256
 
         # (1) Sense image: Takes in BxCx32x32 image input and converts it to Bx256 matrix.
@@ -53,9 +53,9 @@ class Policy(nn.Module):
                                     self._deconv(32, 16),    # Bx16x64x64
                                     self._deconv(16, 16),    # Bx16x128x128
                                     self._deconv(16, 8),     # Bx8x256x256
-                                    self._deconv(8, 3),     # Bx8x256x256
-                                    #nn.ConvTranspose2d(8, 3, kernel_size=4, stride=2, padding=1), # Bx3x512x512
-                                    #nn.Sigmoid()
+                                    #self._deconv(8, 3),     # Bx8x512x512
+                                    nn.ConvTranspose2d(8, 3, kernel_size=4, stride=2, padding=1), # Bx3x512x512
+                                    nn.Sigmoid()
                                    )
  
             
