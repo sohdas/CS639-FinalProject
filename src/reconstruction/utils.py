@@ -28,10 +28,11 @@ class StateObject():
             self.index = np.array([[0, 0] for _ in range(self.batch_size)])
             return self.images[:, :, 0:32, 0:32], np.zeros([self.batch_size, 256]) #self.index # THIS WAS ALSO CHANGED.
         
-        actions = actions.detach().cpu().numpy()
-        action_inds = np.argmax(actions, axis=1) # indexes of max prob action.
+        action_inds = actions.detach().cpu().numpy()
+        #action_inds = np.argmax(actions, axis=1) # indexes of max prob action.
+        #act = actions.multinomial(num_samples=1).data
         # List of the indices used to retrieve the subarray corresponding to the views chosen by the max action.
-        view_subarray_inds = [self.action_to_view[action_max] for action_max in action_inds]
+        view_subarray_inds = [self.action_to_view[action_max[0]] for action_max in action_inds] # the action_max[0] is new!
         #view_locs = np.array([[action_max//16/15.0, action_max%16/15.0] for action_max in action_inds]) # THIS MIGHT BE WRONG. ORDER MIGHT BE WRONG OR THE 2D REPRESENTATION OF LOCATION MIGHT BE INADEQUATE.
         
         ###### THIS IS A TEST AND MIGHT BREAK EVERYTHING. BE CAREFUL ########

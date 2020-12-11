@@ -24,13 +24,16 @@ class Policy(nn.Module):
                                       View((-1, 1024)),       # Bx1024
                                       self._linear(1024, 256) # Bx256
                                      )
+        
+        # NOTE: EXPERIMENTAL. Try implementing a view history.
+        self.sense_views = self._linear(self.input_size_act, self.input_size_act)
 
         # (2) Sense proprioception stack: Converts proprioception inputs to 16-D vector.
         self.sense_pro = self._linear(self.input_size_loc, 16)
 
         # (3) Fuse: Fusing the outputs of (1) and (2) to give 256-D vector per image
         # May be appropriate to add activation function later or change to self._linear.
-        self.fuse = nn.Sequential(self._linear(272, 256), # Bx256
+        self.fuse = nn.Sequential(self._linear(528, 256), # Bx256 # NOTE: THIS USED TO BE 272.
                                   nn.Linear(256, 256),    # Bx256
                                   nn.BatchNorm1d(256)
                                  )
@@ -53,18 +56,18 @@ class Policy(nn.Module):
                                     self._deconv(32, 16),    # Bx16x64x64
                                     self._deconv(16, 16),    # Bx16x128x128
                                     self._deconv(16, 8),     # Bx8x256x256
-                                    #self._deconv(8, 3),     # Bx8x512x512
                                     nn.ConvTranspose2d(8, 3, kernel_size=4, stride=2, padding=1), # Bx3x512x512
                                     nn.Sigmoid()
                                    )
  
             
-    def forward(self, x, hidden=None):
+    def forward(self, x, views, hidden=None):
         
         # "Sense" the image.
         x1 = self.sense_im(x['im']) #.squeeze()
         x2 = self.sense_pro(x['pro'])
-        x = torch.cat([x1, x2], dim=1)
+        x3 = self.sense_views(views) # NOTE: EXPERIMENTAL.
+        x = torch.cat([x1, x2, x3], dim=1)
         batch_size = x.shape[0]
         
         # Set up the recurrent hidden layers.
